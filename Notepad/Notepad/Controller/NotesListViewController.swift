@@ -70,7 +70,10 @@ class NotesListViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    func loadNotes(with request: NSFetchRequest<Note> = Note.fetchRequest()){
+    func loadNotes(with request: NSFetchRequest<Note> = Note.fetchRequest(), predicate: NSPredicate? = nil){
+        
+        request.predicate = predicate
+        
         do {
             notes = try context.fetch(request)
         } catch {
@@ -87,10 +90,15 @@ extension NotesListViewController: UISearchBarDelegate {
     
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Note> = Note.fetchRequest()
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "body", ascending: true)]
+        
+        loadNotes(with: request, predicate: NSPredicate(format: "body CONTAINS[cd] %@", searchBar.text!))
         
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
+        loadNotes()
     }
 }
